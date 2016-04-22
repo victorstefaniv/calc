@@ -1,65 +1,25 @@
 var buttonHeight=18.8,
 	buttonWidth=18,
 	maxDisplayLength=20, 
-	//memoryString, 
-	memory=[], 
-	display, 
 	wasPoint=wasDigit=wasOperator=wasResult=wasMinus=firstZero=false, 
 	start=true,
 	body=document.getElementsByTagName('body')[0],
-	calc=body.appendChild(document.createElement('div')),
-	calcDisplay=calc.appendChild(document.createElement('div'));
+	calc=document.getElementById('calc'),
+	calcDisplay=document.getElementById('calcDisplay');
 
-document.getElementsByTagName('head')[0].appendChild(document.createElement('title'));
-document.getElementsByTagName('title')[0].appendChild(document.createTextNode('Калькулятор'));
-body.style.padding=0;
-body.style.margin=0;
-
-calc.setAttribute('id','calc');	
-calc.style.position='relative';
-calc.style.margin='0 auto';
-calc.style.padding='1vh';
-calc.style.paddingBottom='0';
-
-calc.style.backgroundColor="green";
-calc.style.height=99+'vh';
-
-calcDisplay.style.position='float';
-calcDisplay.style.padding='0';
-calcDisplay.setAttribute('id','calcDisplay');
-calcDisplay.style.backgroundColor="gray";
-calcDisplay.style.fontFamily='Digital-7';
-calcDisplay.style.fontSize=buttonHeight+'vh';
-calcDisplay.style.height=buttonHeight+'vh';
-calcDisplay.style.textAlign='right';
-calcDisplay.innerHTML=0;
-calcDisplay.style.marginBottom='1vh';
-function setButton(buttonName,float,clearFloat, rightMargin) {
-	var createdButton=document.createElement('button');
-	createdButton.setAttribute('id',buttonName);
-	calc.appendChild(createdButton);
-	document.getElementById(buttonName).appendChild(document.createTextNode(buttonName));
-	createdButton.style.position='float';
-	createdButton.style.float=float;
-	createdButton.style.clear=clearFloat;
-	createdButton.style.marginRight=rightMargin;
-	createdButton.style.marginBottom='1vh';
-	createdButton.style.height=buttonHeight+'vh';
-	createdButton.style.width=buttonWidth+'%';
-}
 function multilpy(memoryString) {
 	var memory=memoryString.split(''), operandOne=[], operandTwo=[], result;
 	for (var i=0; i<memory.length; i++) {
 		if (memory[i]=='*') {
 			var k=i-1, j=i+1;
-			while (memory[k]!='+' && memory[k]!='*' && memory[k]!='/' && memory[k]!=null && memory[k]!=undefined) {
+			while (/[\d\.\-]/.test(memory[k])) {
 				operandOne.unshift(memory[k]);
 				k--;
 				if (memory[k]=='-' && k>0) {
 					break;
 				}
 			}
-			while (memory[j]!='+' && memory[j]!='*' && memory[j]!='/' && memory[j]!=null && memory[j]!=undefined) {
+			while (/[\d\.\-]/.test(memory[j])) {
 				operandTwo.push(memory[j]);
 				j++;
 				if (memory[j]=='-' && j!=i+1) {
@@ -78,14 +38,14 @@ function divide(memoryString) {
 	for (var i=0; i<memory.length; i++) {
 		if (memory[i]=='/' && i!=0) {
 			var k=i-1, j=i+1;
-			while (memory[k]!='+' && memory[k]!='*' && memory[k]!='/' && memory[k]!=null && memory[k]!=undefined) {
+			while (/[\d\.\-]/.test(memory[k])) {
 				operandOne.unshift(memory[k]);
 				k--;
 				if (memory[k]=='-' && k>0) {
 					break;
 				}
 			}
-			while (memory[j]!='+' && memory[j]!='*' && memory[j]!='/' && memory[j]!=null && memory[j]!=undefined) {
+			while (/[\d\.\-]/.test(memory[j])) {
 				operandTwo.push(memory[j]);
 				j++;
 				if (memory[j]=='-' && j!=i+1) {
@@ -104,14 +64,14 @@ function minus(memoryString) {
 	for (var i=0; i<memory.length; i++) {
 		if (memory[i]=='-' && i!=0) {
 			var k=i-1, j=i+1;
-			while (memory[k]!='+' && memory[k]!='*' && memory[k]!='/' && memory[k]!=null && memory[k]!=undefined) {
-					operandOne.unshift(memory[k]);
-					k--;
+			while (/[\d\.\-]/.test(memory[k])) {
+				operandOne.unshift(memory[k]);
+				k--;
 				if (memory[k]=='-' && k>0) {
 					break;
 				}
 			}
-			while (memory[j]!='+' && memory[j]!='*' && memory[j]!='/' && memory[j]!=null && memory[j]!=undefined) {
+			while (/[\d\.\-]/.test(memory[j])) {
 				operandTwo.push(memory[j]);
 				j++;
 				if (memory[j]=='-' && j!=i+1) {
@@ -130,11 +90,11 @@ function plus(memoryString) {
 	for (var i=0; i<memory.length; i++) {
 		if (memory[i]=='+' && i!=0) {
 			var k=i-1, j=i+1;
-			while (memory[k]!='+' && memory[k]!='-' && memory[k]!='*' && memory[k]!='/' && memory[k]!=null && memory[k]!=undefined) {
+			while (/[\d\.]/.test(memory[k])) {
 				operandOne.unshift(memory[k]);
 				k--;
 			}
-			while (memory[j]!='+' && memory[j]!='-' && memory[j]!='*' && memory[j]!='/' && memory[j]!=null && memory[j]!=undefined) {
+			while (/[\d\.]/.test(memory[j])) {
 				operandTwo.push(memory[j]);
 				j++;
 			}
@@ -216,12 +176,8 @@ function display() {
 		firstZero=false;
 		
 	}
-	if((this.innerHTML=='+' || 
-		this.innerHTML=='*' || 
-		this.innerHTML=='/' 	)    && 
-		calcDisplay.innerHTML.length<maxDisplayLength) {
-		if (!start		&& 
-			wasDigit 		) {
+	if(/[\*\+\/]/.test(this.innerHTML) && calcDisplay.innerHTML.length<maxDisplayLength) {
+		if (!start && wasDigit) {
 			display=this.innerHTML;
 			calcDisplay.appendChild(document.createTextNode(display));
 			
@@ -266,16 +222,7 @@ function display() {
 			
 		}
 	}
-	if((this.innerHTML=='1' ||
-		this.innerHTML=='2' ||
-		this.innerHTML=='3' ||
-		this.innerHTML=='4' ||
-		this.innerHTML=='5' ||
-		this.innerHTML=='6' ||
-		this.innerHTML=='7' ||
-		this.innerHTML=='8' ||
-		this.innerHTML=='9'		) &&
-		calcDisplay.innerHTML.length<maxDisplayLength) {
+	if     (/[1-9]/.test(this.innerHTML) && calcDisplay.innerHTML.length<maxDisplayLength) {
 		if (!start 		&&
 			!wasResult	&&
 			!firstZero		) {
@@ -364,23 +311,6 @@ function display() {
 		
 	}
 }
-setButton(7, 'left', 'none', '2.5%');
-setButton(8, 'left', 'none', '2.5%');
-setButton(9, 'left', 'none', '2.5%');
-setButton('/', 'left', 'none', '2.5%');
-setButton('clear', 'left', 'none', '0');
-setButton(4, 'left', 'both', '2.5%');
-setButton(5, 'left', 'none', '2.5%');
-setButton(6, 'left', 'none', '2.5%');
-setButton('*', 'left', 'none', '2.5%');
-setButton(1, 'left', 'both', '2.5%');
-setButton(2, 'left', 'none', '2.5%');
-setButton(3, 'left', 'none', '2.5%');
-setButton('-', 'left', 'none', '2.5%');
-setButton(0, 'left', 'both', '2.5%');
-setButton('.', 'left', 'none', '2.5%');
-setButton('=', 'left', 'none', '2.5%');
-setButton('+', 'left', 'none', '2.5%');
 for (i=0; i<17;i++) {
 	document.getElementsByTagName('button')[i].addEventListener('click',display,false);
 }

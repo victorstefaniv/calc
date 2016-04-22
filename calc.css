@@ -12,3 +12,41 @@ div {
 	padding: 0;
 	margin: 0;
 }
+body {
+	padding: 0;
+	margin: 0;
+}
+#calc {
+	position: relative;
+	margin: 0 auto;
+	padding: 1vh;
+	padding-bottom: 0;
+	background-color: green;
+	height: 99vh;
+}
+#calc div {
+	position: float;
+	padding: 0;
+	background-color: gray;
+	height: 18.8vh;
+	text-align: right;
+	margin-bottom: 1vh;
+}
+#calcDisplay {
+	font: 18.8vh Digital-7;
+	vertical-align: middle;
+}
+button {
+	position: float;
+	float: left;
+	width: 18%;
+	height: 18.8vh;
+	margin-bottom: 1vh;
+	margin-right: 2.5%;
+}	
+#clear {
+	margin-right: 0;
+}
+#4, #1, #0 {
+	clear: both;
+}
