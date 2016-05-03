@@ -1,112 +1,48 @@
-var buttonHeight=18.8,
-	buttonWidth=18,
-	maxDisplayLength=20, 
-	wasPoint=wasDigit=wasOperator=wasResult=wasMinus=firstZero=false, 
-	start=true,
-	body=document.getElementsByTagName('body')[0],
-	calc=document.getElementById('calc'),
-	calcDisplay=document.getElementById('calcDisplay');
-
-function multilpy(memoryString) {
-	var memory=memoryString.split(''), operandOne=[], operandTwo=[], result;
+var buttonHeight=18.8, buttonWidth=18, maxDisplayLength=20, 
+wasPoint=wasResult=false,
+calcDisplay=document.getElementById('calcDisplay');
+function multiply(memory) {
 	for (var i=0; i<memory.length; i++) {
 		if (memory[i]=='*') {
-			var k=i-1, j=i+1;
-			while (/[\d\.\-]/.test(memory[k])) {
-				operandOne.unshift(memory[k]);
-				k--;
-				if (memory[k]=='-' && k>0) {
-					break;
-				}
-			}
-			while (/[\d\.\-]/.test(memory[j])) {
-				operandTwo.push(memory[j]);
-				j++;
-				if (memory[j]=='-' && j!=i+1) {
-					break;
-				}
-			}
+			memory.splice(i-1,3,Number(memory[i-1])*Number(memory[i+1]));
 			break;
 		}
 	}
-	result=Number(operandOne.join(''))*Number(operandTwo.join(''));
-	memory.splice(k+1,j-k-1,result);
-	return memory.join('');
+	return memory;
 }
-function divide(memoryString) {
-	var memory=memoryString.split(''), operandOne=[], operandTwo=[], result;
+function divide(memory) {
 	for (var i=0; i<memory.length; i++) {
-		if (memory[i]=='/' && i!=0) {
-			var k=i-1, j=i+1;
-			while (/[\d\.\-]/.test(memory[k])) {
-				operandOne.unshift(memory[k]);
-				k--;
-				if (memory[k]=='-' && k>0) {
-					break;
-				}
-			}
-			while (/[\d\.\-]/.test(memory[j])) {
-				operandTwo.push(memory[j]);
-				j++;
-				if (memory[j]=='-' && j!=i+1) {
-					break;
-				}
-			}
+		if (memory[i]=='/' && memory[i+1]!='0') {
+			memory.splice(i-1,3,Number(memory[i-1])/Number(memory[i+1]));
+			break;
+		}
+		if (memory[i]=='/' && memory [i+1]=='0') {
+			memory.splice(0,memory.length,'dividing by zero');
 			break;
 		}
 	}
-	result=Number(operandOne.join(''))/Number(operandTwo.join(''));
-	memory.splice(k+1,j-k-1,result);
-	return memory.join('');
+	return memory;
 }
-function minus(memoryString) {
-	var memory=memoryString.split(''), operandOne=[], operandTwo=[], result;
+function minus(memory) {
 	for (var i=0; i<memory.length; i++) {
-		if (memory[i]=='-' && i!=0) {
-			var k=i-1, j=i+1;
-			while (/[\d\.\-]/.test(memory[k])) {
-				operandOne.unshift(memory[k]);
-				k--;
-				if (memory[k]=='-' && k>0) {
-					break;
-				}
-			}
-			while (/[\d\.\-]/.test(memory[j])) {
-				operandTwo.push(memory[j]);
-				j++;
-				if (memory[j]=='-' && j!=i+1) {
-					break;
-				}
-			}
+		if (memory[i]=='-') {
+			memory.splice(i-1,3,Number(memory[i-1])-Number(memory[i+1]));
 			break;
 		}
 	}
-	result=Number(operandOne.join(''))-Number(operandTwo.join(''));
-	memory.splice(k+1,j-k-1,result);
-	return memory.join('');
+	return memory;
 }
-function plus(memoryString) {
-	var memory=memoryString.split(''), operandOne=[], operandTwo=[], result;
+function plus(memory) {
 	for (var i=0; i<memory.length; i++) {
-		if (memory[i]=='+' && i!=0) {
-			var k=i-1, j=i+1;
-			while (/[\d\.]/.test(memory[k])) {
-				operandOne.unshift(memory[k]);
-				k--;
-			}
-			while (/[\d\.]/.test(memory[j])) {
-				operandTwo.push(memory[j]);
-				j++;
-			}
+		if (memory[i]=='+') {
+			memory.splice(i-1,3,Number(memory[i-1])+Number(memory[i+1]));
 			break;
 		}
 	}
-	result=Number(operandOne.join(''))+Number(operandTwo.join(''));
-	memory.splice(k+1,j-k-1,result);
-	return memory.join('');
+	return memory;
 }
-function nextOperation(memoryString) {
-	var memory=memoryString.split(''), operation='none';
+function nextOperation(memory) {
+	var operation='none';
 	for (var i=0; i<memory.length; i++) {
 		if (memory[i]=='*'||memory[i]=='/') {
 			operation=memory[i];
@@ -114,7 +50,7 @@ function nextOperation(memoryString) {
 		}
 	}
 	if (operation=='none') {
-		for (var i=1; i<memory.length; i++) {
+		for (var i=0; i<memory.length; i++) {
 			if (memory[i]=='+'||memory[i]=='-') {
 				operation=memory[i];
 				break;
@@ -124,191 +60,101 @@ function nextOperation(memoryString) {
 	return operation;
 }
 function calculate(memoryString) {
-	nextOperation(memoryString);
-	while (nextOperation(memoryString)!='none') {
-		switch (nextOperation(memoryString)) {
+	console.log(memoryString);
+	var memory=memoryString.split(/([\*\/\+\-])/);
+	for (var i=0; i<memory.length; i++) {
+		if (memory[i]=='') {
+			memory.splice(i,3,0-memory[i+2]);
+		}
+	}
+	console.log(memory);
+	nextOperation(memory);
+	while (nextOperation(memory)!='none') {
+		switch (nextOperation(memory)) {
 			case '*': { 
-				memoryString=multilpy(memoryString); 
+				multiply(memory); 
 				break; 
 			}
 			case '/': {
-				memoryString=divide(memoryString);
+				divide(memory);
 				break;
 			}
 			case '-': {
-				memoryString=minus(memoryString);
+				minus(memory);
 				break;
 			}
 			case '+': {
-				memoryString=plus(memoryString);
+				plus(memory);
 				break;
 			}
 			default: break;
 		}
-		nextOperation(memoryString);
+		console.log(memory);
+		nextOperation(memory);
 	}
-	return memoryString;
+	return memory.join('');
 }
 function display() {
-	if (this.innerHTML=='=' && 
-		wasDigit				) {
+	if (this.innerHTML=='=' && /\d/.test(calcDisplay.innerHTML[calcDisplay.innerHTML.length-1])) {
 		var result=calculate(calcDisplay.innerHTML);
 		calcDisplay.innerHTML=result;
-		
 		wasResult=true;
-		wasDigit=false;
 		wasPoint=false;
-		wasMinus=false;
-		wasOperator=false;
-		start=false;
-		firstZero=false;
-		
 	}
 	if (this.innerHTML=='clear') {
 		calcDisplay.innerHTML='0';
-		
 		wasResult=false;
-		wasDigit=false;
 		wasPoint=false;
-		wasMinus=false;
-		wasOperator=false;
-		start=true;
-		firstZero=false;
-		
 	}
-	if(/[\*\+\/]/.test(this.innerHTML) && calcDisplay.innerHTML.length<maxDisplayLength) {
-		if (!start && wasDigit) {
+	if (/[\*\+\/]/.test(this.innerHTML) && calcDisplay.innerHTML.length<maxDisplayLength && 
+	    /\d/.test(calcDisplay.innerHTML[calcDisplay.innerHTML.length-1]))  {
 			display=this.innerHTML;
 			calcDisplay.appendChild(document.createTextNode(display));
-			
 			wasResult=false;
-			wasDigit=false;
 			wasPoint=false;
-			wasMinus=false;
-			wasOperator=true;
-			start=false;
-			firstZero=false;
-			
-		}
 	}
-	if (this.innerHTML=='-'    && 
-		calcDisplay.innerHTML.length<maxDisplayLength) {
-		if (start) {
-			calcDisplay.innerHTML='';
-			display=this.innerHTML;
-			calcDisplay.appendChild(document.createTextNode(display));
-
-			wasResult=false;
-			wasDigit=false;
-			wasPoint=false;
-			wasMinus=true;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
-			
-		}
-		if (!start					&& 
-			(wasOperator||wasDigit)		) {
-			display=this.innerHTML;
-			calcDisplay.appendChild(document.createTextNode(display));
-			
-			wasResult=false;
-			wasDigit=false;
-			wasPoint=false;
-			wasMinus=true;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
-			
-		}
+	if (this.innerHTML=='-' && calcDisplay.innerHTML.length<maxDisplayLength) {
+			if (calcDisplay.innerHTML=='0') {
+				calcDisplay.innerHTML='-';
+				wasResult=false;
+				wasPoint=false;
+			}
+			if (/[\*\+\/\d]/.test(calcDisplay.innerHTML[calcDisplay.innerHTML.length-1])) {
+				calcDisplay.appendChild(document.createTextNode('-'));
+				wasResult=false;
+				wasPoint=false;
+			}
 	}
-	if     (/[1-9]/.test(this.innerHTML) && calcDisplay.innerHTML.length<maxDisplayLength) {
-		if (!start 		&&
-			!wasResult	&&
-			!firstZero		) {
+	if (/\d/.test(this.innerHTML) && calcDisplay.innerHTML.length<maxDisplayLength) {
+		if (!wasResult && calcDisplay.innerHTML!='0' && 
+		    !(/[\*\+\/\-]/.test(calcDisplay.innerHTML[calcDisplay.innerHTML.length-2]) &&
+		    calcDisplay.innerHTML[calcDisplay.innerHTML.length-1]=='0')) {
 			display=this.innerHTML;
 			calcDisplay.appendChild(document.createTextNode(display));
-			
-			wasResult=false;
-			wasDigit=true;
-			wasMinus=false;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
 		}
-		if (start) {
+		if (calcDisplay.innerHTML=='0' || wasResult) {
 			display=this.innerHTML;
 			calcDisplay.innerHTML='';
 			calcDisplay.appendChild(document.createTextNode(display));
-			
 			wasResult=false;
-			wasDigit=true;
-			wasMinus=false;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
-			
-		}
-		
-	}
-	if (this.innerHTML=='0' &&
-		calcDisplay.innerHTML.length<maxDisplayLength) {
-		if (!start 					&&
-			(wasOperator||wasMinus)		) {
-			display=this.innerHTML;
-			calcDisplay.appendChild(document.createTextNode(display));
-			
-			wasResult=false;
-			wasDigit=true;
-			wasMinus=false;
-			wasOperator=false;
-			start=false;
-			firstZero=true;
-		}
-		if (!start 					&&
-			(wasDigit||wasPoint)	&&
-			!firstZero					) {
-			display=this.innerHTML;
-			calcDisplay.appendChild(document.createTextNode(display));
-			
-			wasResult=false;
-			wasDigit=true;
-			wasMinus=false;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
 		}
 	}
-	if (this.innerHTML=='.' && 
-		calcDisplay.innerHTML.length<maxDisplayLength) {
-		if (start 		&&
-			!wasPoint		) {
-			display=this.innerHTML;
-			calcDisplay.appendChild(document.createTextNode(display));
-			
-			wasResult=false;
-			wasDigit=false;
-			wasPoint=true;
-			wasMinus=false;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
+	if (this.innerHTML=='.') {
+		if (calcDisplay.innerHTML.length<maxDisplayLength) {
+			if (!wasResult && /\d/.test(calcDisplay.innerHTML[calcDisplay.innerHTML.length-1]) && !wasPoint) {
+				calcDisplay.appendChild(document.createTextNode('.'));
+				wasPoint=true;
+			}
+			if (/[^\d\.]/.test(calcDisplay.innerHTML[calcDisplay.innerHTML.length-1])) {
+				calcDisplay.appendChild(document.createTextNode('0.'));
+				wasPoint=true;
+			}
 		}
-		if (!start 		&&
-			wasDigit	&&
-			!wasPoint		) {
-			display=this.innerHTML;
-			calcDisplay.appendChild(document.createTextNode(display));
-			
+		if (wasResult) {
+			calcDisplay.innerHTML='0.';
 			wasResult=false;
-			wasDigit=false;
 			wasPoint=true;
-			wasMinus=false;
-			wasOperator=false;
-			start=false;
-			firstZero=false;
 		}
-		
 	}
 }
 for (i=0; i<17;i++) {
